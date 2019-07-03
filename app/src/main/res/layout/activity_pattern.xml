@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PatternActivity">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/show_password_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="start password anim"
+            android:textSize="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/password_text"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:textSize="15dp"
+            app:layout_constraintBottom_toTopOf="@+id/lock_view_circle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.reginald.patternlockview.PatternLockView
+            android:id="@+id/lock_view_circle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            app:layout_constraintBottom_toTopOf="@+id/show_password_button"
+            app:lock_autoLink="true"
+            app:lock_enableVibrate="true"
+            app:lock_guidelineColor="#666666"
+            app:lock_lineColor="#ffaa22"
+            app:lock_lineCorrectColor="#a2008800"
+            app:lock_lineErrorColor="#a2880000"
+            app:lock_lineWidth="8dp"
+            app:lock_nodeCorrectSrc="@drawable/pattern_lock_circle_node_correct"
+            app:lock_nodeErrorSrc="@drawable/pattern_lock_circle_node_error"
+            app:lock_nodeHighlightSrc="@drawable/pattern_lock_circle_node_highlighted"
+            app:lock_nodeOnAnim="@anim/pattern_lock_node_anim_larger"
+            app:lock_nodeSize="40dp"
+            app:lock_nodeSrc="@drawable/pattern_lock_circle_node_normal"
+            app:lock_nodeTouchExpand="15dp"
+            app:lock_size="3"
+            app:lock_vibrateTime="100">
+
+        </com.reginald.patternlockview.PatternLockView>
+
+    </android.support.constraint.ConstraintLayout>
+
+    <!-- app:lock_spacing is NOT given, it applies Identical-Area mode -->
+
+    <!-- app:lock_spacing is given, it applies SpacingPadding mode -->
+    <!--<com.reginald.patternlockview.PatternLockView-->
+        <!--android:id="@+id/lock_view_dot"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="center"-->
+        <!--app:lock_size="4"-->
+        <!--app:lock_enableVibrate="true"-->
+        <!--app:lock_vibrateTime="100"-->
+        <!--app:lock_lineColor="#11aa22"-->
+        <!--app:lock_lineWidth="5dp"-->
+        <!--app:lock_nodeSize="10dp"-->
+        <!--app:lock_spacing="60dp"-->
+        <!--app:lock_padding="30dp"-->
+        <!--app:lock_nodeTouchExpand="15dp"-->
+        <!--app:lock_nodeSrc="@drawable/pattern_lock_dot_node_normal"-->
+        <!--app:lock_nodeHighlightSrc="@drawable/pattern_lock_dot_node_highlighted"-->
+        <!--app:lock_nodeOnAnim="@anim/pattern_lock_node_anim_larger"-->
+        <!--app:lock_autoLink="true"-->
+        <!--/>-->
+
+
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <item  android:id="@+id/albumAct"
+        android:title="Album"
+        />
+
+    <item  android:id="@+id/patternAct"
+        android:title="PatternLock"
+         />
+
+    <item  android:id="@+id/handwritingAct"
+        android:title="Handwriting"
+         />
+
+    <item  android:id="@+id/zoomAct"
+        android:title="Zoom"
+         />
+</menu>

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MciApp</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_album">AlbumActivity</string>
+    <string name="title_activity_point">PointActivity</string>
+    <string name="title_activity_tap">TapActivity</string>
+    <string name="title_activity_flick">FlickActivity</string>
+</resources>
