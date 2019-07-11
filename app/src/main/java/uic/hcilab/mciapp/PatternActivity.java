@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,14 +18,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class PatternActivity extends Activity {
+public class PatternActivity extends AppCompatActivity {
 
     private static final String TAG = "DemoActivity";
 
-    static PatternLockView.Password pwd1 = new PatternLockView.Password(Arrays.asList(0, 1, 2, 3, 4));
-    static PatternLockView.Password pwd2 = new PatternLockView.Password(Arrays.asList(0, 1, 4, 3, 8));
+    static PatternLockView.Password pwd1 = new PatternLockView.Password(Arrays.asList(0, 1, 2, 5, 4));
+    static PatternLockView.Password pwd2 = new PatternLockView.Password(Arrays.asList(3, 4, 6, 7, 8));
+    static PatternLockView.Password pwd3 = new PatternLockView.Password(Arrays.asList(4, 1, 2, 5, 7, 8));
+    static PatternLockView.Password pwd4 = new PatternLockView.Password(Arrays.asList(4, 7, 8, 5));
+    static PatternLockView.Password pwd5 = new PatternLockView.Password(Arrays.asList(2, 4, 6, 7, 8, 4, 0));
 
     List<PatternLockView.Password> pwdList = new ArrayList<PatternLockView.Password>();
+    int pwdIdx = 0;
 
     private PatternLockView mCurLockView;
 
@@ -47,51 +52,16 @@ public class PatternActivity extends Activity {
 
         pwdList.add(pwd1);
         pwdList.add(pwd2);
-        mPassword = pwdList.get(0);
+        pwdList.add(pwd3);
+        pwdList.add(pwd4);
+        pwdList.add(pwd5);
+
+        mPassword = pwdList.get(pwdIdx);
 
         mCircleLockView = (PatternLockView) findViewById(R.id.lock_view_circle);
         mCurLockView = mCircleLockView;
         mPasswordTextView = (TextView) findViewById(R.id.password_text);
         mCurLockView.setPatternVisible(true);
-
-
-//        mSwitchButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                switchLockViews();
-//            }
-//        });
-
-//        mPasswordTextView.setText("please enter your password!");
-
-        mPatternShowButton = (Button) findViewById(R.id.show_password_button);
-        mPatternShowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCurLockView.showPasswordGuideline(mPassword.list);
-                mPasswordTextView.setText("show password: " + mPassword.string);
-            }
-        });
-
-//        mPatternShowAnimButton = (Button) findViewById(R.id.switch_show_anim);
-//        mPatternShowAnimButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (mCurLockView.isPasswordAnim()) {
-//                    mCurLockView.stopPasswordAnim();
-//                } else {
-//                    mPatternShowAnimButton.setText("stop password anim");
-//                    mCurLockView.showPasswordWithAnim(mPassword.list, -1, 400l,
-//                            new PatternLockView.onAnimFinishListener() {
-//                                @Override
-//                                public void onFinish(boolean isStopped) {
-//                                    mPatternShowAnimButton.setText("start password anim");
-//                                }
-//                            });
-//                    mPasswordTextView.setText("show password animation: " + mPassword.string);
-//                }
-//            }
-//        });
 
         switchLockViews();
     }
@@ -101,12 +71,12 @@ public class PatternActivity extends Activity {
         super.onStart();
         //mCurLockView.showPassword(mPassword.list);
         mCurLockView.showPasswordGuideline(mPassword.list);
-        mPasswordTextView.setText("show password: " + mPassword.string);
+        //mPasswordTextView.setText("show password: " + mPassword.string);
     }
 
     private void switchLockViews() {
         mPassword = pwdList.get(0);
-        //mCurLockView.stopPasswordAnim();
+
 
         //mCurLockView = mCurLockView == mCircleLockView ? mDotLockView : mCircleLockView;
         mCurLockView.setVisibility(View.VISIBLE);
@@ -128,17 +98,6 @@ public class PatternActivity extends Activity {
 
         mCurLockView.reset();
         mCurLockView.showPasswordGuideline(mPassword.list);
-//        if (mCurLockView != mCircleLockView) {
-//            mCircleLockView.setVisibility(View.GONE);
-//            mCircleLockView.setCallBack(null);
-//            mCircleLockView.setOnNodeTouchListener(null);
-//            mSwitchButton.setText("switch to circle lock view");
-//        } else {
-//            mDotLockView.setVisibility(View.GONE);
-//            mDotLockView.setCallBack(null);
-//            mDotLockView.setOnNodeTouchListener(null);
-//            mSwitchButton.setText("switch to dot lock view");
-//        }
 
         mCurLockView.setCallBack(new PatternLockView.CallBack() {
             @Override
@@ -147,10 +106,19 @@ public class PatternActivity extends Activity {
                 Log.d(TAG, "password length " + password.list.size());
                 if (password.string.length() != 0) {
 //                    mPasswordTextView.setText("password is " + password.string);
+
                 } else {
 //                    mPasswordTextView.setText("please enter your password!");
 
                 }
+
+                if(pwdIdx < pwdList.size()-1)
+                    pwdIdx++;
+                else
+                    Log.i("mystr","end");
+                mPassword = pwdList.get(pwdIdx);
+                mCurLockView.reset();
+                mCurLockView.showPasswordGuideline(mPassword.list);
 
                 if (mPassword.equals(password)) {
                     return PatternLockView.CODE_PASSWORD_CORRECT;
@@ -158,6 +126,7 @@ public class PatternActivity extends Activity {
                     mPassword = password;
                     return PatternLockView.CODE_PASSWORD_ERROR;
                 }
+
             }
         });
 

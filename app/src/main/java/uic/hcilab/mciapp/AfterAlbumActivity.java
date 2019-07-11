@@ -1,41 +1,35 @@
 package uic.hcilab.mciapp;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresPermission;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-public class MainActivity extends AppCompatActivity {
-    WriteSDcard wr;
+public class AfterAlbumActivity extends AppCompatActivity {
+
+    WriteSDcard wr = new WriteSDcard();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        /* Request user permissions in runtime */
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[] {
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                },
-                100);
-        /* Request user permissions in runtime */
-        wr = new WriteSDcard();
+        setContentView(R.layout.activity_after_album);
 
 
-        final Button button = (Button) findViewById(R.id.start_button);
+        final Button button = (Button) findViewById(R.id.after_album_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, AlbumActivity.class);
-                MainActivity.this.startActivity(intent);
-                wr.writeToSDFile(MainActivity.super.getApplicationContext(), "Start");
+                wr.writeToSDFile(AfterAlbumActivity.this, "Start next task");
+                Intent intent = new Intent(AfterAlbumActivity.this, ZoomActivity.class);
+                AfterAlbumActivity.this.startActivity(intent);
             }
         });
 
@@ -74,22 +68,5 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @TargetApi(23)
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 100:
-                if (grantResults.length > 0
-                        || grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    /* User checks permission. */
 
-                } else {
-                    //Toast.makeText(MainActivity.this, "Permission is denied.", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                //return; // delete.
-        }
-    }
 }
-

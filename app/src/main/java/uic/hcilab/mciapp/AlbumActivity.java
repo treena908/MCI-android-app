@@ -1,43 +1,27 @@
 package uic.hcilab.mciapp;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Random;
+
 
 public class AlbumActivity extends AppCompatActivity {
-    public static Class NEXT_ACT;
-    public final static int LOOPS = 1;//1000;
+    public final static int LOOPS = 1;
     public CarouselPagerAdapter adapter;
     public ViewPager pager;
-    public static int count = 10; //ViewPager items size
+    public static int count = 11; //ViewPager items size
     /**
      * You shouldn't define first page = 0.
      * Let define firstpage = 'number viewpager size' to make endless carousel
      */
-    public static int FIRST_PAGE = 0;//10;
+    public static int FIRST_PAGE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +37,7 @@ public class AlbumActivity extends AppCompatActivity {
                 100);
         /* Request user permissions in runtime */
 
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
         pager = (ViewPager) findViewById(R.id.myviewpager);
-
-        FIRST_PAGE = 0;
-        CarouselPagerAdapter.TaskOrder = FIRST_PAGE;
 
 
         //set page margin between pages for viewpager
@@ -76,7 +55,7 @@ public class AlbumActivity extends AppCompatActivity {
         // Set current item to the middle page so we can fling to both
         // directions left and right
         pager.setCurrentItem(FIRST_PAGE);
-        pager.setOffscreenPageLimit(3);
+        pager.setOffscreenPageLimit(1);
     }
 
     @Override
@@ -114,53 +93,4 @@ public class AlbumActivity extends AppCompatActivity {
 
 
 
-    public void writeToSDFile(String str){
-
-        // Find the root of the external storage.
-        File root = Environment.getExternalStorageDirectory();
-        File dir = new File (root.getAbsolutePath() + "/FLM");
-        File file = new File(dir,"FlickActivity.txt");
-
-        try {
-
-            int permissionCheck = ContextCompat.checkSelfPermission(AlbumActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                if (!file.createNewFile()) {
-                    Log.i("Test", "This file is already exist: " + file.getAbsolutePath());
-                }
-
-            }
-            FileOutputStream f = new FileOutputStream(file, true);
-            Long tsLong = System.currentTimeMillis()/10;
-            String ts = tsLong.toString();
-            PrintWriter pw = new PrintWriter(f);
-            pw.println(str+":"+ts);
-            pw.flush();
-            pw.close();
-            f.close();
-            Log.i("my",str+":"+ts);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @TargetApi(23)
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 100:
-                if (grantResults.length > 0
-                        || grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        || grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    /* User checks permission. */
-
-                } else {
-                    //Toast.makeText(MainActivity.this, "Permission is denied.", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                //return; // delete.
-        }
-    }
 }

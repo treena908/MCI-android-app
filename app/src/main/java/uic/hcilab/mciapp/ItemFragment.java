@@ -28,7 +28,7 @@ public class ItemFragment extends Fragment {
             R.mipmap.f1,  R.mipmap.f2,  R.mipmap.f3,
             R.mipmap.f4,  R.mipmap.f5,  R.mipmap.f6,
             R.mipmap.f7,  R.mipmap.f8,  R.mipmap.f9,
-            R.mipmap.f10};
+            R.mipmap.f10, R.mipmap.f11};
 
     public static Fragment newInstance(AlbumActivity context, int pos, float scale) {
         Bundle b = new Bundle();
@@ -53,7 +53,7 @@ public class ItemFragment extends Fragment {
         final int postion = this.getArguments().getInt(POSITON);
         float scale = this.getArguments().getFloat(SCALE);
 
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int)(screenWidth/1.7f)  , (int)(screenHeight/3.3f) );
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int)(screenWidth/1.7f)  , (int)(screenHeight/1.7f) );
         LinearLayout linearLayout = (LinearLayout) inflater.inflate(R.layout.fragment_image, container, false);
 
         TextView textView = (TextView) linearLayout.findViewById(R.id.text);

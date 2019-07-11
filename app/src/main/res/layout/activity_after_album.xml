@@ -4,18 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".AfterAlbumActivity">
 
     <TextView
         android:id="@+id/after_album_textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="150dp"
         android:layout_marginEnd="8dp"
-        android:text="Overview"
+        android:text="Completed the First Task!"
         android:textSize="30dp"
-        android:textStyle="bold"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,20 +29,20 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
         android:gravity="left"
-        android:text="5 tasks will be given. \n\n1.Explore the album \n\n2.Zoom in and out the image. \n\n3.Tracing pattern passwords. \n\n4. Copy words using a handwriting keyboard. \n\n5.Copy given words using the basic keyboard (QWERTY).  \n\nIRB #2019-0579"
-        android:textSize="20dp"
+        android:text="4 tasks left. \n\nNext task is Zoom in/out task. \n\nTake a break and resume when you are ready."
+        android:textSize="25dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/after_album_textView1" />
 
     <Button
-        android:id="@+id/start_button"
+        android:id="@+id/after_album_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
-        android:text="Start"
+        android:text="Start the Next Task"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/after_album_textView2" />

@@ -12,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPager.OnPageChangeListener{
@@ -23,13 +24,18 @@ public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPa
     private FragmentManager fragmentManager;
     private float scale;
     int previousState;
-    int trialCount;
-    int NUM_OF_TRIAL =5;
-    public static int startPoint = 0;
-    int endPoint = 9;
 
-    public static int TaskOrder = 0;
+    public static int startPoint = 0;
+    public static int endPoint = 10;
+
+    int trialCount;
+    int NUM_OF_TRIAL =3;
+
     int taskCount = 0;
+
+    TextView album_text;
+    WriteSDcard wr = new WriteSDcard();
+
 
 
     public CarouselPagerAdapter(AlbumActivity context, FragmentManager fm) {
@@ -37,15 +43,10 @@ public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPa
         this.fragmentManager = fm;
         this.context = context;
 
-        ShowAlert("(→) Flicking Left to Right");
-        startPoint = 0;
-        endPoint =9;
-        ItemFragment.imageArray = new int[]{
-                R.mipmap.f1,  R.mipmap.f2,  R.mipmap.f3,
-                R.mipmap.f4,  R.mipmap.f5,  R.mipmap.f6,
-                R.mipmap.f7,  R.mipmap.f8,  R.mipmap.f9,
-                R.mipmap.f10};
-        trialCount = 0;
+        album_text = (TextView) context.findViewById(R.id.album_text);
+
+        ShowAlert("(→) Please browse all images.");
+        album_text.setText("(→) Please browse all images.");
 
         context.pager.setAdapter(context.adapter);
         context.pager.setCurrentItem(startPoint);
@@ -57,7 +58,7 @@ public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPa
         // make the first pager bigger than others
         try {
             if (position == AlbumActivity.FIRST_PAGE)
-                scale = BIG_SCALE;
+                scale = SMALL_SCALE;//BIG_SCALE;
             else
                 scale = SMALL_SCALE;
 
@@ -95,100 +96,51 @@ public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPa
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        //Log.i("mystr", positionOffset+"");
     }
 
     @Override
     public void onPageSelected(int position) {
         if(position==endPoint)
         {
-            trialCount++;
-            context.writeToSDFile("Finish");
-
-            Toast.makeText(context, "Complete "+trialCount+"of "+NUM_OF_TRIAL , Toast.LENGTH_SHORT).show();
-            final Handler handler = new Handler();
-//            handler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    context.pager.setCurrentItem(startPoint);
-//                }
-//            }, 800);
-
-            ShowAlert("(←) Flicking Right to Left");
 
 
-//            if(trialCount == NUM_OF_TRIAL)
-//            {
-//                if(TaskOrder==0) {
-//                    ShowAlert("(←) Flicking Right to Left");
-//                    ItemFragment.imageArray = new int[]{
-//                            R.mipmap.f10, R.mipmap.f9, R.mipmap.f8,
-//                            R.mipmap.f7, R.mipmap.f6, R.mipmap.f5,
-//                            R.mipmap.f4, R.mipmap.f3, R.mipmap.f2,
-//                            R.mipmap.f1};
-//
-//                    taskCount++;
-//                    if(taskCount==1)
-//                        TaskOrder =1;
-//                    else if(taskCount==2)
-//                    {
-//                        handler.postDelayed(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                Intent intent = new Intent(context, AlbumActivity.NEXT_ACT);
-//                                //intent.putExtra(“text”,String.valueOf(editText.getText()));
-//                                context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-//                            }
-//                        }, 800);
-//                    }
-//
-//                    startPoint = 9;
-//                    endPoint = 0;
-//                    trialCount = 0;
-//                    context.pager.setAdapter(context.adapter);
-//                    context.pager.setCurrentItem(startPoint);
-//
-//
-//                }
-//                else if(TaskOrder ==1)
-//                {
-//                    ShowAlert("(→) Flicking Left to Right");
-//                    ItemFragment.imageArray = new int[]{
-//                            R.mipmap.f1,  R.mipmap.f2,  R.mipmap.f3,
-//                            R.mipmap.f4,  R.mipmap.f5,  R.mipmap.f6,
-//                            R.mipmap.f7,  R.mipmap.f8,  R.mipmap.f9,
-//                            R.mipmap.f10};
-//
-//                    taskCount++;
-//                    if(taskCount==1)
-//                        TaskOrder =0;
-//                    else if(taskCount==2) {
-//
-//                        Intent intent = new Intent(context, AlbumActivity.NEXT_ACT);
-//                        //intent.putExtra(“text”,String.valueOf(editText.getText()));
-//                        context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-//                    }
-//                    startPoint = 0;
-//                    endPoint =9;
-//                    trialCount = 0;
-//                    context.pager.setAdapter(context.adapter);
-//                    context.pager.setCurrentItem(startPoint);
-//
-//                }
-//            }
         }
 
-        if(position == startPoint)
-            ShowAlert("(→) Flicking Left to Right");
+        if(position == endPoint && taskCount ==0) {
+            ShowAlert("(←) Please go back to the first image.");
+            album_text.setText("(←) Please go back to the first image.");
+            taskCount= 1;
+
+
+            wr.writeToSDFile(context,"Finish");
+        }
+        if(position ==startPoint && taskCount ==1)
+        {
+            if(trialCount == 2) {
+                Intent intent = new Intent(context, AfterAlbumActivity.class);
+                context.startActivity(intent);
+            }
+            else {
+                trialCount++;
+                taskCount = 0;
+                ShowAlert("(→) Please browse all images.");
+                album_text.setText("(→) Please browse all images again.");
+            }
+
+        }
+
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
         if (previousState == ViewPager.SCROLL_STATE_IDLE
                 && state == ViewPager.SCROLL_STATE_DRAGGING)
-            context.writeToSDFile("Touch");
+            wr.writeToSDFile(context,"Touch");
         else if (previousState == ViewPager.SCROLL_STATE_DRAGGING
                 && state == ViewPager.SCROLL_STATE_SETTLING)
-            context.writeToSDFile("Release");
+            wr.writeToSDFile(context,"Release");
 
         previousState = state;
 
@@ -204,9 +156,10 @@ public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPa
         return "android:switcher:" + context.pager.getId() + ":" + position;
     }
 
+
     public void ShowAlert(String str) {
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-        alertDialog.setTitle("Alert");
+        alertDialog.setTitle("");
         alertDialog.setMessage(str);
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                 new DialogInterface.OnClickListener() {
@@ -216,6 +169,4 @@ public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPa
                 });
         alertDialog.show();
     }
-
-
 }

@@ -11,12 +11,22 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 public class ZoomActivity extends AppCompatActivity {
 
     private ScaleGestureDetector mScaleGestureDetector;
     private float mScaleFactor = 1.0f;
     private ImageView mImageView;
+    WriteSDcard wr = new WriteSDcard();
+
+    float scaleChange;
+    int count = 0;
+    int taskCount = 0;
+
+    int trialCount;
+    int NUM_OF_TRIAL =3;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,26 +39,47 @@ public class ZoomActivity extends AppCompatActivity {
 
     public boolean onTouchEvent(MotionEvent motionEvent) {
         mScaleGestureDetector.onTouchEvent(motionEvent);
-        Log.i("my",mScaleFactor+"a");
-        if(mScaleFactor == 3f) {
-            mScaleFactor = 2.7f;
-            ShowAlert("zoom-in");
+
+        if(motionEvent.getAction() == android.view.MotionEvent.ACTION_UP)
+        {
+            if(scaleChange > 0 && taskCount == 0)
+                count++;
+            if(scaleChange < 0 && taskCount == 1)
+                count++;
+
+            if(count > 9)
+            {
+                if(trialCount ==2){
+                    Intent intent = new Intent(ZoomActivity.this, AfterZoomActivity.class);
+                    ZoomActivity.this.startActivity(intent);
+                }
+                else{
+                    trialCount++;
+                    taskCount = 1;
+                    count = 0;
+                    ShowAlert("Please reduce the image (zoom-out).");
+                    ((TextView)findViewById(R.id.zoom_text)).setText("Please reduce the image (zoom-out).");
+                }
+            }
+
         }
-        else if(mScaleFactor == 0.3f) {
-            mScaleFactor = 0.5f;
-            ShowAlert("zoom-out");
-        }
+
         return true;
     }
+
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector scaleGestureDetector){
-            mScaleFactor *= scaleGestureDetector.getScaleFactor();
-            mScaleFactor = Math.max(0.3f,
-                    Math.min(mScaleFactor, 3.0f));
+            //mScaleFactor *= scaleGestureDetector.getScaleFactor();
+            scaleChange = scaleGestureDetector.getCurrentSpan()-scaleGestureDetector.getPreviousSpan();
+            mScaleFactor += scaleChange*0.0006f;
+
+            mScaleFactor = Math.max(0.1f,
+                    Math.min(mScaleFactor, 10.0f));
             mImageView.setScaleX(mScaleFactor);
             mImageView.setScaleY(mScaleFactor);
+
             return true;
         }
     }
