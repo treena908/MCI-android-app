@@ -55,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, AlbumActivity.class);
                 this.startActivity(intent);
                 break;
+            case R.id.zoomAct:
+                intent = new Intent(this, ZoomActivity.class);
+                this.startActivity(intent);
+                break;
             case R.id.patternAct:
                 intent = new Intent(this, PatternActivity.class);
                 this.startActivity(intent);
@@ -63,10 +67,15 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(this, HandwritingActivity.class);
                 this.startActivity(intent);
                 break;
-            case R.id.zoomAct:
-                intent = new Intent(this, ZoomActivity.class);
+            case R.id.keyboardAct:
+                intent = new Intent(this, KeyboardActivity.class);
                 this.startActivity(intent);
                 break;
+            case R.id.speechAct:
+                intent = new Intent(this, SpeechActivity.class);
+                this.startActivity(intent);
+                break;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

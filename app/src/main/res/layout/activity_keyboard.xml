@@ -4,16 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HandwritingActivity">
+    tools:context=".KeyboardActivity">
 
     <TextView
-        android:id="@+id/handwriting_inst"
+        android:id="@+id/keyboard_inst"
         android:layout_width="wrap_content"
         android:layout_height="53dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
-        android:text="Please write the given sentence with a handwriting input for 5 minutes."
+        android:text="Please write the given sentence with a basic keyboard input for 5 minutes."
         android:textSize="20dp"
         android:textColor="#ff0044"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,7 +21,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/handwriting_sentence"
+        android:id="@+id/keyboard_sentence"
         android:layout_width="wrap_content"
         android:layout_height="61dp"
         android:layout_marginStart="32dp"
@@ -30,26 +30,26 @@
         android:text="Fragrance"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/handwriting_inst" />
+        app:layout_constraintTop_toBottomOf="@+id/keyboard_inst" />
 
     <EditText
-        android:id="@+id/handwriting_editText"
+        android:id="@+id/keyboard_editText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
-        android:inputType="textPersonName"
+        android:inputType="text"
         android:hint="Enter here"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/handwriting_sentence">
+        app:layout_constraintTop_toBottomOf="@+id/keyboard_sentence">
         <requestFocus />
     </EditText>
 
     <Button
-        android:id="@+id/handwriting_button"
+        android:id="@+id/keyboard_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -58,6 +58,6 @@
         android:text="Enter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/handwriting_editText" />
+        app:layout_constraintTop_toBottomOf="@+id/keyboard_editText" />
 
 </android.support.constraint.ConstraintLayout>

@@ -8,22 +8,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-public class AfterZoomActivity extends AppCompatActivity {
+public class AfterHandwritingActivity extends AppCompatActivity {
 
     WriteSDcard wr = new WriteSDcard();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_after_zoom);
+        setContentView(R.layout.activity_after_handwriting);
 
 
-        final Button button = (Button) findViewById(R.id.after_zoom_button);
+        final Button button = (Button) findViewById(R.id.after_handwriting_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                wr.writeToSDFile(AfterZoomActivity.this, "Start next task");
-                Intent intent = new Intent(AfterZoomActivity.this, PatternActivity.class);
-                AfterZoomActivity.this.startActivity(intent);
+                wr.writeToSDFile(AfterHandwritingActivity.this, "Start next task");
+                Intent intent = new Intent(AfterHandwritingActivity.this, KeyboardActivity.class);
+                AfterHandwritingActivity.this.startActivity(intent);
             }
         });
 

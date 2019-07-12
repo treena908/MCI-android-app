@@ -16,6 +16,14 @@
          />
 
     <item  android:id="@+id/zoomAct"
-        android:title="Zoom"
-         />
+    android:title="Zoom"
+    />
+
+    <item  android:id="@+id/keyboardAct"
+        android:title="Keyboard"
+        />
+
+    <item  android:id="@+id/speechAct"
+        android:title="Speech"
+        />
 </menu>

@@ -15,7 +15,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AfterZoomActivity"></activity>
+        <activity android:name=".SpeechActivity"></activity>
+        <activity android:name=".KeyboardActivity" />
+        <activity android:name=".AfterHandwritingActivity" />
+        <activity android:name=".AfterPatternActivity" />
+        <activity android:name=".AfterZoomActivity" />
         <activity android:name=".AfterAlbumActivity" />
         <activity android:name=".ZoomActivity" />
         <activity android:name=".HandwritingActivity" />

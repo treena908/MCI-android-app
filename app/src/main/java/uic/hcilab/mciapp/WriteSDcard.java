@@ -30,7 +30,7 @@ public class WriteSDcard {
                     dir.mkdirs();
 
                 if (!file.createNewFile()) {
-                    Log.i("my", "This file is already exist: " + file.getAbsolutePath());
+                    //Log.i("my", "This file is already exist: " + file.getAbsolutePath());
                 }
 
             }

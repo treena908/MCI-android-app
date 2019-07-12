@@ -1,33 +1,60 @@
 package uic.hcilab.mciapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
-public class AfterZoomActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
 
-    WriteSDcard wr = new WriteSDcard();
+public class KeyboardActivity extends AppCompatActivity {
 
+    List<String> wordList =  new ArrayList<String>();
+    int wordIndex = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_after_zoom);
+        setContentView(R.layout.activity_keyboard);
+
+        wordList.add("animal");
+        wordList.add("coffee");
+        wordList.add("computer");
+        wordList.add("little");
+        wordList.add("restaurant");
+        wordList.add("rabbit");
+
+        final Button button = (Button) findViewById(R.id.keyboard_button);
+        final TextView text = (TextView) findViewById((R.id.keyboard_sentence));
+        final EditText edit = (EditText) findViewById(R.id.keyboard_editText);
 
 
-        final Button button = (Button) findViewById(R.id.after_zoom_button);
+        edit.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                wr.writeToSDFile(AfterZoomActivity.this, "Start next task");
-                Intent intent = new Intent(AfterZoomActivity.this, PatternActivity.class);
-                AfterZoomActivity.this.startActivity(intent);
+                edit.setText("");
+                text.setText(wordList.get(wordIndex));
+                wordIndex = wordIndex+1;
+                if(wordIndex == 5)
+                    wordIndex = 0;
+
+
             }
         });
-
     }
+
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

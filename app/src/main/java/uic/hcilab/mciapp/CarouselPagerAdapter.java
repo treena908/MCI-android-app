@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,7 +28,7 @@ public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPa
 
     public static int startPoint = 0;
     public static int endPoint = 10;
-
+    private VelocityTracker mVelocityTracker = null;
     int trialCount;
     int NUM_OF_TRIAL =3;
 
@@ -35,7 +36,6 @@ public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPa
 
     TextView album_text;
     WriteSDcard wr = new WriteSDcard();
-
 
 
     public CarouselPagerAdapter(AlbumActivity context, FragmentManager fm) {
@@ -51,7 +51,10 @@ public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPa
         context.pager.setAdapter(context.adapter);
         context.pager.setCurrentItem(startPoint);
 
+
+
     }
+
 
     @Override
     public Fragment getItem(int position) {
@@ -102,19 +105,10 @@ public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPa
 
     @Override
     public void onPageSelected(int position) {
-        if(position==endPoint)
-        {
-
-
-        }
-
         if(position == endPoint && taskCount ==0) {
             ShowAlert("(←) Please go back to the first image.");
             album_text.setText("(←) Please go back to the first image.");
             taskCount= 1;
-
-
-            wr.writeToSDFile(context,"Finish");
         }
         if(position ==startPoint && taskCount ==1)
         {
@@ -146,10 +140,13 @@ public class CarouselPagerAdapter extends FragmentPagerAdapter implements ViewPa
 
     }
 
+
     @SuppressWarnings("ConstantConditions")
     private CarouselLinearLayout getRootView(int position) {
+
         return (CarouselLinearLayout) fragmentManager.findFragmentByTag(this.getFragmentTag(position))
                 .getView().findViewById(R.id.root_container);
+
     }
 
     private String getFragmentTag(int position) {

@@ -16,7 +16,7 @@ import android.widget.TextView;
 public class ZoomActivity extends AppCompatActivity {
 
     private ScaleGestureDetector mScaleGestureDetector;
-    private float mScaleFactor = 1.0f;
+    private float mScaleFactor = 1.2f;
     private ImageView mImageView;
     WriteSDcard wr = new WriteSDcard();
 
@@ -24,8 +24,9 @@ public class ZoomActivity extends AppCompatActivity {
     int count = 0;
     int taskCount = 0;
 
-    int trialCount;
+    int trialCount = 0;
     int NUM_OF_TRIAL =3;
+
 
 
     @Override
@@ -33,7 +34,7 @@ public class ZoomActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zoom);
 
-        mImageView=(ImageView)findViewById(R.id.imageView);
+        mImageView=(ImageView)findViewById(R.id.zoom_imageView);
         mScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
     }
 
@@ -49,16 +50,33 @@ public class ZoomActivity extends AppCompatActivity {
 
             if(count > 9)
             {
-                if(trialCount ==2){
-                    Intent intent = new Intent(ZoomActivity.this, AfterZoomActivity.class);
-                    ZoomActivity.this.startActivity(intent);
-                }
-                else{
-                    trialCount++;
+                if(taskCount == 0) {
                     taskCount = 1;
                     count = 0;
                     ShowAlert("Please reduce the image (zoom-out).");
-                    ((TextView)findViewById(R.id.zoom_text)).setText("Please reduce the image (zoom-out).");
+                    ((TextView) findViewById(R.id.zoom_text)).setText("Please reduce the image (zoom-out).");
+                }
+                else{
+                    switch (trialCount){
+                        case 0:
+                            mImageView.setImageResource(R.mipmap.z2);
+                            break;
+                        case 1:
+                            mImageView.setImageResource(R.mipmap.z3);
+                            break;
+                        case 2:
+                            Intent intent = new Intent(ZoomActivity.this, AfterZoomActivity.class);
+                            ZoomActivity.this.startActivity(intent);
+                            break;
+                    }
+
+                    trialCount++;
+                    taskCount = 0;
+                    count = 0;
+                    ShowAlert("Please enlarge the image again (Zoom-in).");
+                    ((TextView) findViewById(R.id.zoom_text)).setText("Please enlarge the image again(Zoom-in).");
+
+
                 }
             }
 
@@ -73,7 +91,7 @@ public class ZoomActivity extends AppCompatActivity {
         public boolean onScale(ScaleGestureDetector scaleGestureDetector){
             //mScaleFactor *= scaleGestureDetector.getScaleFactor();
             scaleChange = scaleGestureDetector.getCurrentSpan()-scaleGestureDetector.getPreviousSpan();
-            mScaleFactor += scaleChange*0.0006f;
+            mScaleFactor += scaleChange*0.0005f;
 
             mScaleFactor = Math.max(0.1f,
                     Math.min(mScaleFactor, 10.0f));
@@ -98,6 +116,10 @@ public class ZoomActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, AlbumActivity.class);
                 this.startActivity(intent);
                 break;
+            case R.id.zoomAct:
+                intent = new Intent(this, ZoomActivity.class);
+                this.startActivity(intent);
+                break;
             case R.id.patternAct:
                 intent = new Intent(this, PatternActivity.class);
                 this.startActivity(intent);
@@ -106,10 +128,15 @@ public class ZoomActivity extends AppCompatActivity {
                 intent = new Intent(this, HandwritingActivity.class);
                 this.startActivity(intent);
                 break;
-            case R.id.zoomAct:
-                intent = new Intent(this, ZoomActivity.class);
+            case R.id.keyboardAct:
+                intent = new Intent(this, KeyboardActivity.class);
                 this.startActivity(intent);
                 break;
+            case R.id.speechAct:
+                intent = new Intent(this, SpeechActivity.class);
+                this.startActivity(intent);
+                break;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

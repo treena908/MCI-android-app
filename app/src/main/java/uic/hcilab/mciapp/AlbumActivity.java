@@ -1,15 +1,19 @@
 package uic.hcilab.mciapp;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-
+import android.view.MotionEvent;
+import android.view.View;
 
 
 public class AlbumActivity extends AppCompatActivity {
@@ -23,6 +27,7 @@ public class AlbumActivity extends AppCompatActivity {
      */
     public static int FIRST_PAGE = 0;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +41,6 @@ public class AlbumActivity extends AppCompatActivity {
                 },
                 100);
         /* Request user permissions in runtime */
-
         pager = (ViewPager) findViewById(R.id.myviewpager);
 
 
@@ -56,7 +60,19 @@ public class AlbumActivity extends AppCompatActivity {
         // directions left and right
         pager.setCurrentItem(FIRST_PAGE);
         pager.setOffscreenPageLimit(1);
+
+
+        ConstraintLayout layout = (ConstraintLayout)findViewById(R.id.include2);
+        layout.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.i("my", "TOUCH EVENT"+event.getX()+","+event.getY()); // handle your fragment number here
+                return false;
+            }
+        });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -72,6 +88,10 @@ public class AlbumActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, AlbumActivity.class);
                 this.startActivity(intent);
                 break;
+            case R.id.zoomAct:
+                intent = new Intent(this, ZoomActivity.class);
+                this.startActivity(intent);
+                break;
             case R.id.patternAct:
                 intent = new Intent(this, PatternActivity.class);
                 this.startActivity(intent);
@@ -80,10 +100,15 @@ public class AlbumActivity extends AppCompatActivity {
                 intent = new Intent(this, HandwritingActivity.class);
                 this.startActivity(intent);
                 break;
-            case R.id.zoomAct:
-                intent = new Intent(this, ZoomActivity.class);
+            case R.id.keyboardAct:
+                intent = new Intent(this, KeyboardActivity.class);
                 this.startActivity(intent);
                 break;
+            case R.id.speechAct:
+                intent = new Intent(this, SpeechActivity.class);
+                this.startActivity(intent);
+                break;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

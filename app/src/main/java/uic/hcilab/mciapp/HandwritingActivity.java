@@ -1,11 +1,13 @@
 package uic.hcilab.mciapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,17 +28,28 @@ public class HandwritingActivity extends AppCompatActivity {
         wordList.add("coffee");
         wordList.add("computer");
         wordList.add("little");
+        wordList.add("restaurant");
+        wordList.add("rabbit");
 
         final Button button = (Button) findViewById(R.id.handwriting_button);
         final TextView text = (TextView) findViewById((R.id.handwriting_sentence));
-        final EditText edit = (EditText) findViewById(R.id.editText);
+        final EditText edit = (EditText) findViewById(R.id.handwriting_editText);
+
+
+        edit.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 edit.setText("");
                 text.setText(wordList.get(wordIndex));
                 wordIndex = wordIndex+1;
                 if(wordIndex == 5)
-                    wordIndex = 0;
+                {
+                    Intent intent = new Intent(HandwritingActivity.this, AfterHandwritingActivity.class);
+                    HandwritingActivity.this.startActivity(intent);
+                }
 
             }
         });
@@ -59,6 +72,10 @@ public class HandwritingActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, AlbumActivity.class);
                 this.startActivity(intent);
                 break;
+            case R.id.zoomAct:
+                intent = new Intent(this, ZoomActivity.class);
+                this.startActivity(intent);
+                break;
             case R.id.patternAct:
                 intent = new Intent(this, PatternActivity.class);
                 this.startActivity(intent);
@@ -67,10 +84,15 @@ public class HandwritingActivity extends AppCompatActivity {
                 intent = new Intent(this, HandwritingActivity.class);
                 this.startActivity(intent);
                 break;
-            case R.id.zoomAct:
-                intent = new Intent(this, ZoomActivity.class);
+            case R.id.keyboardAct:
+                intent = new Intent(this, KeyboardActivity.class);
                 this.startActivity(intent);
                 break;
+            case R.id.speechAct:
+                intent = new Intent(this, SpeechActivity.class);
+                this.startActivity(intent);
+                break;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

@@ -33,7 +33,7 @@
         app:layout_constraintTop_toBottomOf="@+id/zoom_text">
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/zoom_imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
