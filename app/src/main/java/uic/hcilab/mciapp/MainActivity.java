@@ -75,7 +75,10 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(this, SpeechActivity.class);
                 this.startActivity(intent);
                 break;
-
+            case R.id.selectAct:
+                intent = new Intent(this, SelectionActivity.class);
+                this.startActivity(intent);
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }

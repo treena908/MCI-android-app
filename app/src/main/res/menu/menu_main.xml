@@ -26,4 +26,9 @@
     <item  android:id="@+id/speechAct"
         android:title="Speech"
         />
+
+    <item  android:id="@+id/selectAct"
+        android:title="Selection"
+        />
+
 </menu>
