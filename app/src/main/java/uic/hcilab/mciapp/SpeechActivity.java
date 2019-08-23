@@ -1,17 +1,25 @@
 package uic.hcilab.mciapp;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.media.MediaRecorder;
 import android.os.AsyncTask;
-import android.speech.RecognizerIntent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Environment;
+import android.speech.RecognizerIntent;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,22 +37,31 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.UUID;
+
 
 public class SpeechActivity extends AppCompatActivity {
 
+    Button recordButton, stopRecordButton;
     ImageButton speakButton;
-    TextView txtSpeechInput, outputText;
+    TextView outputText;
+    String pathSave = "";
+    MediaRecorder mediaRecorder;
     private final int REQ_CODE_SPEECH_INPUT = 101;
-    private static final String FILE_NAME = "chatbot_data.txt";
+    private final int REQ_PERMISSION_CODE = 1000;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_speech);
 
         speakButton = findViewById(R.id.speakButton);
-        txtSpeechInput = findViewById(R.id.txtSpeechInput);
         outputText = findViewById(R.id.outputText);
+        recordButton = findViewById(R.id.recordButton);
+        stopRecordButton = findViewById(R.id.stopRecordButton);
 
         speakButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,18 +70,91 @@ public class SpeechActivity extends AppCompatActivity {
             }
         });
 
+        recordButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+
+                if (checkPermissionFromDevice()) {
+
+                    pathSave = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"
+                            + UUID.randomUUID().toString() + "_audio_record.3pg";
+                    setupMediaRecorder();
+                    try {
+                        mediaRecorder.prepare();
+                        mediaRecorder.start();
+                        stopRecordButton.setEnabled(true);
+                        recordButton.setEnabled(false);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    Toast.makeText(SpeechActivity.this, "Recording...", Toast.LENGTH_SHORT).show();
+                } else {
+                    requestPermission();
+                }
+            }
+        });
+
+        stopRecordButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                mediaRecorder.stop();
+                stopRecordButton.setEnabled(false);
+                recordButton.setEnabled(true);
+            }
+        });
+
+
     }
+
+    //for audio recorder
+    private void setupMediaRecorder(){
+        mediaRecorder = new MediaRecorder();
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+        mediaRecorder.setOutputFile(pathSave);
+    }
+
+    //request permission to record audio and save it
+    private void requestPermission(){
+        ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO
+        }, REQ_PERMISSION_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode){
+            case REQ_PERMISSION_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
+                } else
+                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+            break;
+        }
+    }
+
+    //ask for permission to record and save audio
+    private boolean checkPermissionFromDevice(){
+        int write__storage_result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int record_audio_result = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+        return write__storage_result == PackageManager.PERMISSION_GRANTED && record_audio_result == PackageManager.PERMISSION_GRANTED;
+    }
+
+
     //Showing google speech input dialog
     private void promptSpeechInput() {
 
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+        Intent userIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        userIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        //intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+        userIntent.putExtra(RecognizerIntent.EXTRA_PROMPT,
                 "Say Something");
         try {
-            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+            startActivityForResult(userIntent, REQ_CODE_SPEECH_INPUT);
         } catch (ActivityNotFoundException a) {
             Toast.makeText(getApplicationContext(),
                     "Sorry! Your device doesn't support speech input",
@@ -85,7 +175,6 @@ public class SpeechActivity extends AppCompatActivity {
 
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     String userQuery = result.get(0);
-                    txtSpeechInput.setText(userQuery);
                     RetrieveFeedTask task = new RetrieveFeedTask();
                     task.execute(userQuery);
 
@@ -115,6 +204,7 @@ public class SpeechActivity extends AppCompatActivity {
             conn.setDoOutput(true);
             conn.setDoInput(true);
 
+            //Bearer ID is Dialogflow Client Access Token
             conn.setRequestProperty("Authorization", "Bearer 86ebae968ceb4bd29a2e9729e05bce54");
             conn.setRequestProperty("Content-Type", "application/json");
 
@@ -184,35 +274,11 @@ public class SpeechActivity extends AppCompatActivity {
         }
 
 
+        //show output text
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             outputText.setText(s);
-        }
-    }
-
-    //FileOutputStream saves user input
-    public void save(View v) throws FileNotFoundException {
-        String text = txtSpeechInput.getText().toString();
-        String lineSeparator = System.getProperty("line.separator");
-        FileOutputStream fos = null;
-        try {
-            fos = openFileOutput(FILE_NAME, MODE_APPEND);
-            fos.write(text.getBytes());
-            fos.write(lineSeparator.getBytes());
-            Toast.makeText(this, "Saved to " + getFilesDir() + "/" + FILE_NAME, Toast.LENGTH_LONG).show();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
