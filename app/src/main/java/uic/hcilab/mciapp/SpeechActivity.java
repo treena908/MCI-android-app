@@ -205,7 +205,7 @@ public class SpeechActivity extends AppCompatActivity {
             conn.setDoInput(true);
 
             //Bearer ID is Dialogflow Client Access Token
-            conn.setRequestProperty("Authorization", "Bearer 86ebae968ceb4bd29a2e9729e05bce54");
+            conn.setRequestProperty("Authorization", "Bearer 607b11f64ea14dd5b8f1e9324f9427f9"); //86ebae968ceb4bd29a2e9729e05bce54");
             conn.setRequestProperty("Content-Type", "application/json");
 
             //CreateJSONObject here
