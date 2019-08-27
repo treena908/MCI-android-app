@@ -1,7 +1,6 @@
 package uic.hcilab.mciapp;
 
 import com.reginald.patternlockview.PatternLockView;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
