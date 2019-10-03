@@ -31,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -44,9 +45,9 @@ import java.util.Locale;
 import java.util.UUID;
 
 
-public class SpeechActivity extends AppCompatActivity {
+public class SpeechActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
-    Button recordButton, stopRecordButton;
+    Button recordButton;
     ImageButton speakButton;
     TextView outputText;
     String pathSave = "";
@@ -58,6 +59,7 @@ public class SpeechActivity extends AppCompatActivity {
     private TextToSpeech mTTS;
     private EditText mEditText;
     private UtteranceProgressListener mProgressListener;
+    WriteSDcard wr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +70,6 @@ public class SpeechActivity extends AppCompatActivity {
         speakButton = findViewById(R.id.speakButton);
         outputText = findViewById(R.id.outputText);
         recordButton = findViewById(R.id.recordButton);
-        stopRecordButton = findViewById(R.id.stopRecordButton);
 
         speakButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,77 +78,89 @@ public class SpeechActivity extends AppCompatActivity {
             }
         });
 
-        recordButton.setOnClickListener(new View.OnClickListener(){
+
+
+//        if (checkPermissionFromDevice()) {
+//
+//            pathSave = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MCI-TEST"
+//                    + UUID.randomUUID().toString() + "_audio_record.3pg";
+//            setupMediaRecorder();
+//            try {
+//                mediaRecorder.prepare();
+//                mediaRecorder.start();
+//                recordButton.setEnabled(false);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            Toast.makeText(SpeechActivity.this, "Recording...", Toast.LENGTH_SHORT).show();
+//        } else {
+//            requestPermission();
+//        }
+//
+
+//
+//        stopRecordButton.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View view){
+//                mediaRecorder.stop();
+//                stopRecordButton.setEnabled(false);
+//                recordButton.setEnabled(true);
+//            }
+//        });
+
+        mTTS = new TextToSpeech(this, this);
+        wr = new WriteSDcard();
+    }
+
+    //speech
+    @Override
+    public void onInit(int status) {
+
+        if (status == TextToSpeech.SUCCESS) {
+            int result = mTTS.setLanguage(Locale.US);
+
+            if (result == TextToSpeech.LANG_MISSING_DATA
+                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Toast.makeText(getApplicationContext(), "Language not supported", Toast.LENGTH_SHORT).show();
+            } else {
+            }
+
+        } else {
+            Toast.makeText(getApplicationContext(), "Init failed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void speakOut() {
+
+
+        mTTS.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
-            public void onClick(View view) {
+            public void onStart(String s) {
 
-                if (checkPermissionFromDevice()) {
+            }
 
-                    pathSave = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"
-                            + UUID.randomUUID().toString() + "_audio_record.3pg";
-                    setupMediaRecorder();
-                    try {
-                        mediaRecorder.prepare();
-                        mediaRecorder.start();
-                        stopRecordButton.setEnabled(true);
-                        recordButton.setEnabled(false);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    Toast.makeText(SpeechActivity.this, "Recording...", Toast.LENGTH_SHORT).show();
-                } else {
-                    requestPermission();
+            @Override
+            public void onDone(String s) {
+                Log.i("my","done");
+                Log.i("my","google:"+google_response);
+                if(google_response.equals("Thank you")){
+                    Intent intent = new Intent(SpeechActivity.this, AfterSpeechActivity.class);
+                    SpeechActivity.this.startActivity(intent);
                 }
-            }
-        });
+                else
+                    promptSpeechInput(google_response);
 
-        stopRecordButton.setOnClickListener(new View.OnClickListener(){
+
+            }
+
             @Override
-            public void onClick(View view){
-                mediaRecorder.stop();
-                stopRecordButton.setEnabled(false);
-                recordButton.setEnabled(true);
-            }
+            public void onError(String s) {}
         });
 
-        //speech
-        mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if(status == TextToSpeech.SUCCESS){
-                    int result = mTTS.setLanguage(Locale.US);
-                    if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
-                        Log.i("my","not supported");
-                    }else{
-                        Log.i("my","speech activated");
-                        mProgressListener = new UtteranceProgressListener() {
-                            @Override
-                            public void onStart(String utteranceId) {
-                            } // Do nothing
-
-                            @Override
-                            public void onError(String utteranceId) {
-                            } // Do nothing.
-
-                            @Override
-                            public void onDone(String utteranceId) {
-                                Log.i("my", "tts finished");
-                            }
-                        };
-
-                    }
-                }else{
-                    Log.i("my","initialization failed");
-                }
-            }
-        });
-
-
-
-        mTTS.setOnUtteranceProgressListener(mProgressListener);
-
-
+        Bundle params = new Bundle();
+        params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "");
+        mTTS.speak(google_response, TextToSpeech.QUEUE_FLUSH, params, "Dummy String");
     }
 
     //for audio recorder
@@ -328,23 +341,12 @@ public class SpeechActivity extends AppCompatActivity {
             super.onPostExecute(s);
             outputText.setText(s);
             google_response = s;
-            speak();
+            speakOut();
             //auto activate the prompt;
 
         }
     }
 
-    //speak
-    private void speak(){
-        String text = google_response;
-        float pitch= 0.5f;
-        float speed= 0.8f;
-
-        mTTS.setPitch(pitch);
-        mTTS.setSpeechRate(speed);
-
-        mTTS.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-    }
 
     private abstract class runnable implements Runnable {
     }

@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.UUID;
 
 public class WriteSDcard {
     public void writeToSDFile(Context mContext, String str){
@@ -57,7 +58,7 @@ public class WriteSDcard {
         // Find the root of the external storage.
         File root = Environment.getExternalStorageDirectory();
         File dir = new File (root.getAbsolutePath() + "/MCI-Test");
-        File file = new File(dir,"Log.txt");
+        File file = new File(dir, UUID.randomUUID().toString() + "_audio_record.3pg");
         try {
 
             int permissionCheck = ContextCompat.checkSelfPermission(mContext, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
