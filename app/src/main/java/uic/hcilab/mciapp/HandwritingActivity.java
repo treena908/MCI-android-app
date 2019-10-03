@@ -20,14 +20,11 @@ import java.util.Map;
 
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
-import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.ImageButton;
 
 import com.myscript.iink.Configuration;
 import com.myscript.iink.ContentPackage;
 import com.myscript.iink.ContentPart;
-import com.myscript.iink.ConversionState;
 import com.myscript.iink.Editor;
 import com.myscript.iink.Engine;
 import com.myscript.iink.IEditorListener;
@@ -47,7 +44,7 @@ public class HandwritingActivity extends AppCompatActivity implements View.OnCli
     private ContentPart contentPart;
     private EditorView editorView;
     private TextView text;
-
+    private EditText inputText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,18 +70,18 @@ public class HandwritingActivity extends AppCompatActivity implements View.OnCli
         wordList.add("restaurant");
         wordList.add("rabbit");
 
-        final Button button = (Button) findViewById(R.id.handwriting_button);
-        final EditText edit = (EditText) findViewById(R.id.handwriting_editText);
+        final Button button = (Button) findViewById(R.id.handwriting_enter_button);
+        inputText = (EditText) findViewById(R.id.handwriting_inputText);
         text = (TextView) findViewById((R.id.handwriting_sentence));
         editorView = findViewById(R.id.editor_view);
 
-        edit.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        inputText.requestFocus();
+//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                edit.setText("");
+                inputText.setText("");
                 text.setText(wordList.get(wordIndex));
                 wordIndex = wordIndex+1;
                 if(wordIndex == 5)
@@ -109,7 +106,13 @@ public class HandwritingActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void partChanging(Editor editor, ContentPart oldPart, ContentPart newPart)
             {
-                // no-op
+                inputText.setText(editorView.getWord());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        inputText.setText(editorView.getWord());
+                    }
+                });
             }
 
             @Override
@@ -117,6 +120,12 @@ public class HandwritingActivity extends AppCompatActivity implements View.OnCli
             {
                 invalidateOptionsMenu();
                 invalidateIconButtons();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        inputText.setText(editorView.getWord());
+                    }
+                });
             }
 
             @Override
@@ -124,6 +133,13 @@ public class HandwritingActivity extends AppCompatActivity implements View.OnCli
             {
                 invalidateOptionsMenu();
                 invalidateIconButtons();
+                inputText.setText(editorView.getWord());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        inputText.setText(editorView.getWord());
+                    }
+                });
             }
 
             @Override
@@ -201,10 +217,10 @@ public class HandwritingActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
         switch (v.getId())
         {
-
             case R.id.button_clear:
                 editorView.getEditor().clear();
                 break;
+
             default:
                 Log.e("myLog", "Failed to handle click event");
                 break;

@@ -33,7 +33,7 @@
         app:layout_constraintTop_toBottomOf="@+id/handwriting_inst" />
 
     <EditText
-        android:id="@+id/handwriting_editText"
+        android:id="@+id/handwriting_inputText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -49,7 +49,7 @@
     </EditText>
 
     <Button
-        android:id="@+id/handwriting_button"
+        android:id="@+id/handwriting_enter_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -59,7 +59,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.373"
         app:layout_constraintStart_toEndOf="@+id/button_clear"
-        app:layout_constraintTop_toBottomOf="@+id/handwriting_editText" />
+        app:layout_constraintTop_toBottomOf="@+id/handwriting_inputText" />
 
     <include
         layout="@layout/editor_view"
@@ -72,7 +72,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/handwriting_button" />
+        app:layout_constraintTop_toBottomOf="@+id/handwriting_enter_button" />
 
     <Button
         android:id="@+id/button_clear"
@@ -82,6 +82,6 @@
         android:layout_marginTop="32dp"
         android:text="Clear"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/handwriting_editText" />
+        app:layout_constraintTop_toBottomOf="@+id/handwriting_inputText" />
 
 </android.support.constraint.ConstraintLayout>

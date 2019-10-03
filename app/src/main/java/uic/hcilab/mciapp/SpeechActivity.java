@@ -11,6 +11,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -20,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,6 +40,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.UUID;
 
 
@@ -49,8 +53,11 @@ public class SpeechActivity extends AppCompatActivity {
     MediaRecorder mediaRecorder;
     private final int REQ_CODE_SPEECH_INPUT = 101;
     private final int REQ_PERMISSION_CODE = 1000;
-
-
+    String google_response;
+    //speech
+    private TextToSpeech mTTS;
+    private EditText mEditText;
+    private UtteranceProgressListener mProgressListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +73,7 @@ public class SpeechActivity extends AppCompatActivity {
         speakButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                promptSpeechInput();
+                promptSpeechInput(null);
             }
         });
 
@@ -103,6 +110,42 @@ public class SpeechActivity extends AppCompatActivity {
                 recordButton.setEnabled(true);
             }
         });
+
+        //speech
+        mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status == TextToSpeech.SUCCESS){
+                    int result = mTTS.setLanguage(Locale.US);
+                    if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
+                        Log.i("my","not supported");
+                    }else{
+                        Log.i("my","speech activated");
+                        mProgressListener = new UtteranceProgressListener() {
+                            @Override
+                            public void onStart(String utteranceId) {
+                            } // Do nothing
+
+                            @Override
+                            public void onError(String utteranceId) {
+                            } // Do nothing.
+
+                            @Override
+                            public void onDone(String utteranceId) {
+                                Log.i("my", "tts finished");
+                            }
+                        };
+
+                    }
+                }else{
+                    Log.i("my","initialization failed");
+                }
+            }
+        });
+
+
+
+        mTTS.setOnUtteranceProgressListener(mProgressListener);
 
 
     }
@@ -146,13 +189,17 @@ public class SpeechActivity extends AppCompatActivity {
 
 
     //Showing google speech input dialog
-    private void promptSpeechInput() {
+    private void promptSpeechInput(String s) {
 
         Intent userIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         userIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        userIntent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                "Say Something");
+
+
+        if(s != null)
+            userIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, s);
+        else
+            userIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Say something");
         try {
             startActivityForResult(userIntent, REQ_CODE_SPEECH_INPUT);
         } catch (ActivityNotFoundException a) {
@@ -217,10 +264,10 @@ public class SpeechActivity extends AppCompatActivity {
             jsonParam.put("sessionId", "1234567890");
 
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-            Log.d("karma", "after conversion is " + jsonParam.toString());
+            Log.d("my", "after conversion is " + jsonParam.toString());
             wr.write(jsonParam.toString());
             wr.flush();
-            Log.d("karma", "json is " + jsonParam);
+            Log.d("my", "json is " + jsonParam);
 
             //Get the server response
             reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -228,6 +275,7 @@ public class SpeechActivity extends AppCompatActivity {
             String line = null;
 
             //Read Server Response
+
             while ((line = reader.readLine()) != null) {
                 //Append Server response in string
                 sb.append(line + "\n");
@@ -243,11 +291,11 @@ public class SpeechActivity extends AppCompatActivity {
             SharedPreferences sharedPref = getSharedPreferences("pref1", Context.MODE_PRIVATE);
             String userid = sharedPref.getString("userID", null);
 
-            Log.d("karma ", "response is " + text);
+            Log.d("my ", "response is " + text);
             return speech;
 
         } catch (Exception ex) {
-            Log.d("karma", "exception at last " + ex);
+            Log.d("my", "exception at last " + ex);
         } finally {
             try {
 
@@ -268,7 +316,7 @@ public class SpeechActivity extends AppCompatActivity {
 
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
-                Log.d("karma", "Exception occured " + e);
+                Log.d("my", "Exception occured " + e);
             }
             return s;
         }
@@ -279,8 +327,29 @@ public class SpeechActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             outputText.setText(s);
+            google_response = s;
+            speak();
+            //auto activate the prompt;
+
         }
     }
+
+    //speak
+    private void speak(){
+        String text = google_response;
+        float pitch= 0.5f;
+        float speed= 0.8f;
+
+        mTTS.setPitch(pitch);
+        mTTS.setSpeechRate(speed);
+
+        mTTS.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+    }
+
+    private abstract class runnable implements Runnable {
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
