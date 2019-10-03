@@ -112,6 +112,7 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
 
         mTTS = new TextToSpeech(this, this);
         wr = new WriteSDcard();
+        outputText.setText("Hello, In this task, you need to describe the picture on the screen. Please start after pressing the microphone button.");
 
 
     }
