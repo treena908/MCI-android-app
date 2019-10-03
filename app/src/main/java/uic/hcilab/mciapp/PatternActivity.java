@@ -144,7 +144,6 @@ public class PatternActivity extends AppCompatActivity {
         // set finish timeout, if 0, reset the lock view immediately after user input one password
         mCircleLockView.setFinishTimeout(2000);
         // set whether user can interrupt the finish timeout.
-        // if true, the lock view will be reset when user touch a new node.
         // if false, the lock view will be reset only when the finish timeout expires
         mCircleLockView.setFinishInterruptable(false);
         // set whether the lock view can auto link the nodes in the path of two selected nodes
