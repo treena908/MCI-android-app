@@ -60,6 +60,7 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
     private EditText mEditText;
     private UtteranceProgressListener mProgressListener;
     WriteSDcard wr;
+    int fallback_count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +112,8 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
 
         mTTS = new TextToSpeech(this, this);
         wr = new WriteSDcard();
+
+
     }
 
     //speech
@@ -124,7 +127,13 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
                     || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Toast.makeText(getApplicationContext(), "Language not supported", Toast.LENGTH_SHORT).show();
             } else {
+                mTTS.setPitch(0.5f);
+                mTTS.setSpeechRate(0.8f);
+                Bundle params = new Bundle();
+                params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "");
+                mTTS.speak("Hello, In this task, you need to describe the picture on the screen. Please start after pressing the microphone button.", TextToSpeech.QUEUE_FLUSH,params, "Dummy String");
             }
+
 
         } else {
             Toast.makeText(getApplicationContext(), "Init failed", Toast.LENGTH_SHORT).show();
@@ -305,6 +314,10 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
             String userid = sharedPref.getString("userID", null);
 
             Log.d("my ", "response is " + text);
+
+            if(text.contains("Default Fallback"))
+                fallback_count+=1;
+
             return speech;
 
         } catch (Exception ex) {
@@ -338,6 +351,12 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
         //show output text
         @Override
         protected void onPostExecute(String s) {
+
+            if(fallback_count > 1){
+                fallback_count =0;
+                s = "Let's talk about other things. What else you can see in the picture?";
+            }
+
             super.onPostExecute(s);
             outputText.setText(s);
             google_response = s;
