@@ -98,7 +98,7 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
 //        } else {
 //            requestPermission();
 //        }
-//
+
 
 //
 //        stopRecordButton.setOnClickListener(new View.OnClickListener(){

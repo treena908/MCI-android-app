@@ -151,5 +151,13 @@
     <orderEntry type="library" scope="TEST" name="Gradle: net.sf.kxml:kxml2:2.3.0@jar" level="project" />
     <orderEntry type="module" module-name="patternlock" />
     <orderEntry type="module" module-name="UIReferenceImplementation" />
+    <orderEntry type="module" module-name="patternlock" />
+    <orderEntry type="module" module-name="UIReferenceImplementation" />
+    <orderEntry type="module" module-name="patternlock" />
+    <orderEntry type="module" module-name="UIReferenceImplementation" />
+    <orderEntry type="module" module-name="patternlock" />
+    <orderEntry type="module" module-name="UIReferenceImplementation" />
+    <orderEntry type="module" module-name="patternlock" />
+    <orderEntry type="module" module-name="UIReferenceImplementation" />
   </component>
 </module>
