@@ -77,7 +77,6 @@ public class SelectionActivity extends AppCompatActivity implements TextToSpeech
 
         speakButton = findViewById(R.id.speakButton);
         outputText = findViewById(R.id.outputText);
-        recordButton = findViewById(R.id.recordButton);
 
         speakButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,9 +85,6 @@ public class SelectionActivity extends AppCompatActivity implements TextToSpeech
                 promptSpeechInput(null);
             }
         });
-
-
-
 
 
 
