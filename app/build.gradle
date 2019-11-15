@@ -6,6 +6,18 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/ASL2.0'
+    }
+
     defaultConfig {
         applicationId "uic.hcilab.mciapp"
         minSdkVersion 27
@@ -20,6 +32,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
@@ -33,6 +46,8 @@ dependencies {
 
     implementation project(':patternlock')
     implementation project(':UIReferenceImplementation')
+
+    implementation group: 'com.google.cloud', name: 'google-cloud-speech', version: '0.61.0-beta'
 }
 
 

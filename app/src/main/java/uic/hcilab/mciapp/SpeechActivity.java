@@ -6,10 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.AudioFormat;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -36,8 +38,10 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -49,7 +53,19 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.UUID;
-
+//
+import com.google.cloud.speech.v1.RecognitionAudio;
+import com.google.cloud.speech.v1.RecognitionConfig;
+import com.google.cloud.speech.v1.RecognitionConfig.AudioEncoding;
+import com.google.cloud.speech.v1.RecognizeResponse;
+import com.google.cloud.speech.v1.SpeechClient;
+import com.google.cloud.speech.v1.SpeechRecognitionAlternative;
+import com.google.cloud.speech.v1.SpeechRecognitionResult;
+import com.google.protobuf.ByteString;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class SpeechActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
@@ -62,7 +78,7 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
     private final int REQ_PERMISSION_CODE = 1000;
     String google_response;
     //speech
-    SpeechRecognizer recognizer;
+    //SpeechRecognizer recognizer;
     ViewTreeObserver vto;
     private TextToSpeech mTTS;
     private EditText mEditText;
@@ -72,6 +88,8 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
 
     int total_count = 0;
     int fallback_count = 0;
+
+    RecordAudio recordAudio;
 
     //0: woman
     //1: boy
@@ -96,19 +114,22 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
             outputText = findViewById(R.id.outputText);
             completeButton = findViewById(R.id.speech_complete);
             vto = speakButton.getViewTreeObserver();
-            recognizer = SpeechRecognizer.createSpeechRecognizer(this);
-            recognizer.setRecognitionListener(new listener());
+            //recognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            //recognizer.setRecognitionListener(new listener());
+
+
 
             speakButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
-                    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                    intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
-
-                    intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,20);
-                    recognizer.startListening(intent);
+                    //mediaRecorder.stop();
+                    startAquisition();
+//                    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+//                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+//                    intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
+//
+//                    intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,20);
+//                    recognizer.startListening(intent);
 
                     //promptSpeechInput(null);
 
@@ -119,32 +140,21 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
             if (checkPermissionFromDevice()) {
 
                 pathSave = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MCI-TEST/"
-                        + UUID.randomUUID().toString() + "_audio_record.3pg";
-                //setupMediaRecorder();
-    //            try {
-    //                mediaRecorder.prepare();
-    //                mediaRecorder.start();
-    //                recordButton.setEnabled(false);
-    //            } catch (IOException e) {
-    //                e.printStackTrace();
-    //            }
+                        + UUID.randomUUID().toString() + "_audio_record.mp3";
+//                setupMediaRecorder();
+//                try {
+//                    mediaRecorder.prepare();
+//                    mediaRecorder.start();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
 
                 Toast.makeText(SpeechActivity.this, "Recording...", Toast.LENGTH_SHORT).show();
             } else {
                 requestPermission();
             }
 
-
-    //
-    //        stopRecordButton.setOnClickListener(new View.OnClickListener(){
-    //            @Override
-    //            public void onClick(View view){
-    //                mediaRecorder.stop();
-    //                stopRecordButton.setEnabled(false);
-    //                recordButton.setEnabled(true);
-    //            }
-    //        });
-    //        });
+            ;
 
             completeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -189,6 +199,12 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
     }
 
     private void speakOut() {
+//        try {
+//            mediaRecorder.prepare();
+//            mediaRecorder.start();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         Bundle params = new Bundle();
         params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "");
@@ -228,14 +244,14 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
 
     }
 
-//    //for audio recorder
-//    private void setupMediaRecorder(){
-//        mediaRecorder = new MediaRecorder();
-//        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-//        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-//        mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-//        mediaRecorder.setOutputFile(pathSave);
-//    }
+    //for audio recorder
+    private void setupMediaRecorder(){
+        mediaRecorder = new MediaRecorder();
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        mediaRecorder.setOutputFile(pathSave);
+    }
 
 //    //request permission to record audio and save it
     private void requestPermission(){
@@ -529,6 +545,64 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
     }
 
 
+    class recordListener implements RecordAudio.RecordAudioListener{
+        public void finish(String filename){
+            Log.i("my", "finish recording");
+
+            //speech to text
+            try (SpeechClient speechClient = SpeechClient.create()) {
+
+                // The path to the audio file to transcribe
+
+                // Reads the audio file into memory
+                File file = new File(filename);
+                int size = (int) file.length();
+                byte[] data = new byte[size];
+                try {
+                    BufferedInputStream buf = new BufferedInputStream(new FileInputStream(file));
+                    buf.read(data, 0, data.length);
+                    buf.close();
+                } catch (FileNotFoundException e) {
+                    Log.i("my", "file not found");
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    Log.i("my", "error");
+                    e.printStackTrace();
+                }
+
+                //Path path = Paths.get(fileName);
+                //byte[] data = Files.readAllBytes(path);
+                ByteString audioBytes = ByteString.copyFrom(data);
+
+                // Builds the sync recognize request
+                RecognitionConfig config = RecognitionConfig.newBuilder()
+                        .setEncoding(AudioEncoding.LINEAR16)
+                        .setSampleRateHertz(16000)
+                        .setLanguageCode("en-US")
+                        .build();
+                RecognitionAudio audio = RecognitionAudio.newBuilder()
+                        .setContent(audioBytes)
+                        .build();
+
+                // Performs speech recognition on the audio file
+                RecognizeResponse response = speechClient.recognize(config, audio);
+                List<SpeechRecognitionResult> results = response.getResultsList();
+
+                for (SpeechRecognitionResult result : results) {
+                    // There can be several alternative transcripts for a given chunk of speech. Just use the
+                    // first (most likely) one here.
+                    SpeechRecognitionAlternative alternative = result.getAlternativesList().get(0);
+                    Log.i("my","Transcription: %s%n" + alternative.getTranscript());
+                }
+            } catch (IOException e) {
+                Log.i("my","No speech client");
+                e.printStackTrace();
+            }
+        }
+    }
+
     class listener implements RecognitionListener
     {
         public void onReadyForSpeech(Bundle params)
@@ -579,4 +653,38 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
             Log.d("my", "onEvent " + eventType);
         }
     }
+
+
+    public void resetAquisition() {
+        Log.w("my", "resetAquisition");
+        stopAquisition();
+        //startButton.setText("WAIT");
+        startAquisition();
+    }
+
+    public void stopAquisition() {
+        Log.w("my", "stopAquisition");
+        if (recordAudio.getStarted()) {
+            recordAudio.setStarted(false);
+            recordAudio.cancel(true);
+        }
+    }
+
+    public void startAquisition(){
+        Log.w("my", "startAquisition");
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+
+                //elapsedTime=0;
+                recordAudio = new RecordAudio();
+                recordAudio.setRecordAudioListener(new recordListener());
+                recordAudio.setStarted(true);
+                recordAudio.execute();
+                //startButton.setText("RESET");
+            }
+        }, 500);
+    }
+
+
 }
