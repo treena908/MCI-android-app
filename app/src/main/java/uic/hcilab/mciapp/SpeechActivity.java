@@ -2,12 +2,14 @@ package uic.hcilab.mciapp;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -45,6 +47,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -74,15 +77,16 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
     TextView outputText;
     String pathSave = "";
     MediaRecorder mediaRecorder;
-    private final int REQ_CODE_SPEECH_INPUT = 101;
     private final int REQ_PERMISSION_CODE = 1000;
+    private final int REQ_CODE_SPEECH_INPUT = 100;
     String google_response;
     //speech
-    //SpeechRecognizer recognizer;
+    SpeechRecognizer recognizer;
     ViewTreeObserver vto;
     private TextToSpeech mTTS;
-    private EditText mEditText;
-    private UtteranceProgressListener mProgressListener;
+    public Intent mIntent;
+//    private EditText mEditText;
+//    private UtteranceProgressListener mProgressListener;
     WriteSDcard wr;
     ImageView imageView;
 
@@ -104,8 +108,10 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_speech);
 
+            //figure
             imageView = (ImageView) findViewById(R.id.boston_cookie_theft_picture);
 
+            //highlight
             highlightArr[0] = findViewById(R.id.speech_highlight1);
             highlightArr[1] = findViewById(R.id.speech_highlight2);
             highlightArr[2] = findViewById(R.id.speech_highlight3);
@@ -114,25 +120,22 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
             outputText = findViewById(R.id.outputText);
             completeButton = findViewById(R.id.speech_complete);
             vto = speakButton.getViewTreeObserver();
-            //recognizer = SpeechRecognizer.createSpeechRecognizer(this);
-            //recognizer.setRecognitionListener(new listener());
 
+            recognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            recognizer.setRecognitionListener(new listener());
 
-
+            //Listeners
             speakButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     //mediaRecorder.stop();
-                    startAquisition();
-//                    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-//                    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-//                    intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
-//
-//                    intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,20);
-//                    recognizer.startListening(intent);
+                    //startAquisition();
+                    mIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                    mIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                    mIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
 
-                    //promptSpeechInput(null);
-
+                    mIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,20);
+                    recognizer.startListening(mIntent);
                 }
             });
 
@@ -141,20 +144,13 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
 
                 pathSave = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MCI-TEST/"
                         + UUID.randomUUID().toString() + "_audio_record.mp3";
-//                setupMediaRecorder();
-//                try {
-//                    mediaRecorder.prepare();
-//                    mediaRecorder.start();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                //setupMediaRecorder();
+
 
                 Toast.makeText(SpeechActivity.this, "Recording...", Toast.LENGTH_SHORT).show();
             } else {
                 requestPermission();
             }
-
-            ;
 
             completeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -165,11 +161,10 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
                 }
             });
 
+
             mTTS = new TextToSpeech(this, this);
             wr = new WriteSDcard();
             outputText.setText("Hello, In this task, you need to describe the picture on the screen. Please start after pressing the microphone button.");
-
-
     }
 
 
@@ -200,8 +195,8 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
 
     private void speakOut() {
 //        try {
-//            mediaRecorder.prepare();
-//            mediaRecorder.start();
+////            mediaRecorder.prepare();
+////            mediaRecorder.start();
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
@@ -218,19 +213,21 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
 
             @Override
             public void onDone(String s) {
-                Log.i("my","done");
                 Log.i("my","google:"+google_response);
                 if(google_response.equals("Thank you")){
+                    //Finish this task
                     wr.writeToSDFile(SpeechActivity.super.getBaseContext(),"Speech:End");
                     Intent intent = new Intent(SpeechActivity.this, AfterSpeechActivity.class);
                     SpeechActivity.this.startActivity(intent);
                 }
                 else {
-                    Log.i("my","done2");
+                    Log.i("my","next question");
                     speakButton.post(new Runnable(){
                         @Override
                         public void run() {
+                            //user doesn't need to press the button.
                             speakButton.performClick();
+
                         }
                     });
                 }
@@ -283,52 +280,50 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
     }
 
 
-    //Showing google speech input dialog
-    private void promptSpeechInput(String s) {
 
-        Intent userIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        userIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+    //Receiving speech input
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-
-        if(s != null)
-            userIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, s);
-        else
-            userIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Say something");
+        // the recording url is in getData:
+        Log.i("my","dddddddddddddddddddddddddddddddddddd");
+        Uri audioUri = data.getData();
+        ContentResolver contentResolver = getContentResolver();
         try {
-            startActivityForResult(userIntent, REQ_CODE_SPEECH_INPUT);
-        } catch (ActivityNotFoundException a) {
-            Toast.makeText(getApplicationContext(),
-                    "Sorry! Your device doesn't support speech input",
-                    Toast.LENGTH_SHORT).show();
+            InputStream filestream = contentResolver.openInputStream(audioUri);
+            File file = new File(pathSave);
+            copyInputStreamToFile(filestream, file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+    // InputStream -> File
+    private static void copyInputStreamToFile(InputStream inputStream, File file)
+            throws IOException {
+
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+
+            int read;
+            byte[] bytes = new byte[1024];
+
+            while ((read = inputStream.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, read);
+            }
+
+            // commons-io
+            //IOUtils.copy(inputStream, outputStream);
+
         }
 
     }
 
 
-    //Receiving speech input
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        switch (requestCode) {
-//            case REQ_CODE_SPEECH_INPUT: {
-//                if (resultCode == RESULT_OK && null != data) {
-//
-//                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-//                    String userQuery = result.get(0);
-//                    RetrieveFeedTask task = new RetrieveFeedTask();
-//                    task.execute(userQuery);
-//
-//                }
-//                break;
-//            }
-//        }
-//    }
-
-
     // Create GetText Method
-    //compiles data and sends to URL (NOT WORKING)
+    //compiles data and sends to URL
     public String GetText(String query) throws UnsupportedEncodingException {
 
         String text = "";
@@ -458,7 +453,6 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
             Log.d("my", "exception at last " + ex);
         } finally {
             try {
-
                 reader.close();
             } catch (Exception ex) {
             }
@@ -490,13 +484,11 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
             outputText.setText(s);
             google_response = s;
 
-
             speakOut();
 
 
         }
     }
-
 
     private abstract class runnable implements Runnable {
     }
@@ -605,6 +597,9 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
 
     class listener implements RecognitionListener
     {
+        //sometimes onResult() is called twice, so I added a boolean variable to ignore 2nd one. It is the temporary solution.
+        boolean singleResult = true;
+
         public void onReadyForSpeech(Bundle params)
         {
             Log.d("my", "onReadyForSpeech");
@@ -622,6 +617,7 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
         public void onEndOfSpeech()
         {
             Log.d("my", "onEndofSpeech");
+            singleResult = true;
         }
         public void onError(int error)
         {
@@ -629,19 +625,39 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
         }
         public void onResults(Bundle results)
         {
-            String str = new String();
-            ArrayList data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-            for (int i = 0; i < data.size(); i++)
-            {
-                str += data.get(i);
+            if(singleResult) {
+                String str = new String();
+                ArrayList data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                for (int i = 0; i < data.size(); i++) {
+                    str += data.get(i);
+                }
+
+                String answer = (String) data.get(0);
+
+                String s = null;
+                RetrieveFeedTask task = new RetrieveFeedTask();
+                task.execute(answer);
+
+
+
+                //TODO: Recording the audio is not working.
+                Uri audioUri = Uri.parse(mIntent.toURI());
+                ContentResolver contentResolver = getContentResolver();
+                try {
+                    InputStream filestream = contentResolver.openInputStream(audioUri);
+                    File file = new File(pathSave);
+                    copyInputStreamToFile(filestream, file);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
 
-            String answer = (String) data.get(0);
 
-            String s = null;
-            RetrieveFeedTask task = new RetrieveFeedTask();
-            task.execute(answer);
-
+            //temporary solution
+            singleResult = false;
             
         }
         public void onPartialResults(Bundle partialResults)
@@ -658,7 +674,6 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
     public void resetAquisition() {
         Log.w("my", "resetAquisition");
         stopAquisition();
-        //startButton.setText("WAIT");
         startAquisition();
     }
 
@@ -676,12 +691,10 @@ public class SpeechActivity extends AppCompatActivity implements TextToSpeech.On
         handler.postDelayed(new Runnable() {
             public void run() {
 
-                //elapsedTime=0;
                 recordAudio = new RecordAudio();
                 recordAudio.setRecordAudioListener(new recordListener());
                 recordAudio.setStarted(true);
                 recordAudio.execute();
-                //startButton.setText("RESET");
             }
         }, 500);
     }
